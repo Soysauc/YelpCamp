@@ -3,68 +3,34 @@ const cities = require("./cities");
 const { places, descriptors } = require("./seedHelpers");
 const Campground = require("../models/campground");
 
-const axios = require("axios");
-
-// connect to Mongo
-main().catch((err) => {
-  console.log("OH NO!!! MONGO connection error");
-  console.log(err);
+mongoose.connect("mongodb://localhost:27017/yelp-camp", {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true,
 });
 
-async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/yelp-camp");
-  console.log("MONGO connection open");
-}
+const db = mongoose.connection;
 
-// unsplash collections.
-const collectionOne = "483251"; // woods collection
-const collectionTwo = "3846912"; //campgrounds collection
-const collectionThree = "9046579"; //camping
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+  console.log("Database connected");
+});
 
-// call unsplash and return small image
-
-async function seedImg(collection) {
-  try {
-    const resp = await axios.get("https://api.unsplash.com/photos/random", {
-      params: {
-        client_id: "sc76QSBrVrobHYwigZ4vzxvqqU5ZROYt7m7nla8ApOE",
-        collections: collection,
-        count: 30, //max count allowed by unsplash API
-      },
-      headers: { Accept: "application/json", "Accept-Encoding": "identity" },
-    });
-    // console.log(resp.data);  // was garbled data prior to setting headers  11/27/2022
-    return resp.data.map((a) => a.urls.small);
-  } catch (err) {
-    console.error(err);
-  }
-}
+const sample = (array) => array[Math.floor(Math.random() * array.length)];
 
 const seedDB = async () => {
   await Campground.deleteMany({});
-  //make 3 API requests to unsplash, 30 images per request
-  const imageSetOne = await seedImg(collectionOne);
-  const imageSetTwo = await seedImg(collectionTwo);
-  const imageSetThree = await seedImg(collectionThree);
-  //spread into one array
-  const imgs = [...imageSetOne, ...imageSetTwo, ...imageSetThree]; // 90 random images
   for (let i = 0; i < 50; i++) {
-    // setup - get random number based on each arrays length
-    const descriptorsSeed = Math.floor(Math.random() * descriptors.length);
-    const placeSeed = Math.floor(Math.random() * places.length);
-    const citySeed = Math.floor(Math.random() * cities.length);
-    const price = Math.floor(Math.random() * 25) + 10;
-    const imgsSeed = Math.floor(Math.random() * imgs.length);
-    // seed data into campgrounds collection
+    const random1000 = Math.floor(Math.random() * 1000);
+    const price = Math.floor(Math.random() * 20) + 10;
     const camp = new Campground({
-      imageUrl: `${imgs[imgsSeed]}`,
-      title: `${descriptors[descriptorsSeed]} ${places[placeSeed]}`,
-      location: `${cities[citySeed].city}, ${cities[citySeed].state}`,
+      location: `${cities[random1000].city}, ${cities[random1000].state}`,
+      title: `${sample(descriptors)} ${sample(places)}`,
+      image: "https://source.unsplash.com/collection/483251",
       description:
-        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Debitis, nihil tempora vel aspernatur quod aliquam illum! Iste impedit odio esse neque veniam molestiae eligendi commodi minus, beatae accusantium, doloribus quo!",
+        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam dolores vero perferendis laudantium, consequuntur voluptatibus nulla architecto, sit soluta esse iure sed labore ipsam a cum nihil atque molestiae deserunt!",
       price,
     });
-
     await camp.save();
   }
 };
