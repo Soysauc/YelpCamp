@@ -25,12 +25,10 @@ app.use(methodOverride("_method"));
 app.get("/", (req, res) => {
   res.render("home");
 });
-
 app.get("/campgrounds", async (req, res) => {
   const campgrounds = await Campground.find({});
   res.render("campgrounds/index", { campgrounds });
 });
-
 app.get("/campgrounds/new", (req, res) => {
   res.render("campgrounds/new");
 });
