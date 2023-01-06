@@ -8,7 +8,4 @@ As mentioned above the primary technologies for this project are Html, Css, Java
 
 As for styling it was largely based upon the Bootstrap 5 alpha release (5.3 as of writing) and it also included a script with Popper.js for popups and navigation.
 
-### Things I have to revisit when I finish
-
-1. The EJS is rendering an unneeded bracket } on the card-titles
-2. My api call isn't working
+### 
