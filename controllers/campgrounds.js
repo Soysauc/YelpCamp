@@ -11,6 +11,7 @@ module.exports.index = async (req, res) => {
   });
   res.render("campgrounds/index", { campgrounds });
 };
+
 module.exports.renderNewForm = (req, res) => {
   res.render("campgrounds/new");
 };
@@ -66,7 +67,9 @@ module.exports.updateCampground = async (req, res) => {
   const campground = await Campground.findByIdAndUpdate(id, {
     ...req.body.campground,
   });
+
   const imgs = req.files.map((f) => ({ url: f.path, filename: f.filename }));
+  console.log("campground updated");
   campground.images.push(...imgs);
   await campground.save();
   if (req.body.deleteImages) {
